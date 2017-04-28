@@ -118,6 +118,11 @@ class PositioncategoryController extends OrganizationbaseController
         if (!empty($category) && $category['pid'] == '0' && $supCategoryNum == '1') {
             $this->ajaxReturn(array('isSuccess' => false, 'msg' => Ibos::lang('Leave at least a Category')), 'json');
         }
+        // 判断分类下有子类，不给删除
+        $subCategoryNum = PositionCategory::model()->countByAttributes(array('pid' => $catid));
+        if ($subCategoryNum != '0') {
+            $this->ajaxReturn(array('isSuccess' => false, 'msg' => Ibos::lang('Please delete subCategory first')), 'json');
+        }
         $ret = $this->_category->delete($catid);
         Position::model()->updateAll(array('catid' => 1), '`catid` = ' . $catid);
         $msg = $ret ? Ibos::lang('Operation succeed', 'message') : Ibos::lang('Operation failure', 'message');
